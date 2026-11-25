@@ -105,15 +105,16 @@ for ($i = 0; $i -lt $game.Count; $i++) {
 	} elseif ($game[$i] -notmatch '\$\{') { $clean += $game[$i] }
 }
 
-$options = Join-Path $gameDir "options.txt"
-$optionsBackup = "$options.launch-direct"
-if (Test-Path $options) { Copy-Item -Force $options $optionsBackup }
+# Note: PowerShell variables are case-insensitive, so the file path must not be called $options ($Options is the param).
+$optionsFile = Join-Path $gameDir "options.txt"
+$optionsBackup = "$optionsFile.launch-direct"
+if (Test-Path $optionsFile) { Copy-Item -Force $optionsFile $optionsBackup }
 try {
 	if ($Options.Count -gt 0) {
-		$lines = @(if (Test-Path $options) { Get-Content $options })
+		$lines = @(if (Test-Path $optionsFile) { Get-Content $optionsFile })
 		$lines = foreach ($l in $lines) { $k = $l.Split(":", 2)[0]; if ($Options.ContainsKey($k)) { "${k}:$($Options[$k])" } else { $l } }
 		foreach ($k in $Options.Keys) { if (-not ($lines -match "^${k}:")) { $lines += "${k}:$($Options[$k])" } }
-		Set-Content -Encoding UTF8 $options $lines
+		Set-Content -Encoding UTF8 $optionsFile $lines
 	}
 	$argFile = Join-Path $env:TEMP "snapdrift-launch-$Profile.args"
 	# Java @argfiles: quote every argument, escape backslashes and quotes.
@@ -122,5 +123,5 @@ try {
 	$proc = Start-Process -FilePath $Java -ArgumentList "@`"$argFile`"" -WorkingDirectory $gameDir -PassThru -Wait
 	"exit code $($proc.ExitCode)"
 } finally {
-	if (Test-Path $optionsBackup) { Move-Item -Force $optionsBackup $options }
+	if (Test-Path $optionsBackup) { Move-Item -Force $optionsBackup $optionsFile }
 }

@@ -1,2 +1,2 @@
-renderDistance:32
+renderDistance:20
 simulationDistance:6
