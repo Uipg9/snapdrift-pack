@@ -41,5 +41,5 @@ $table | Sort-Object Setup, Run | ForEach-Object {
 } | Format-Table Setup, Run, N, AvgFps, Low1, P99ms, VsVanilla, RD, Mods -AutoSize | Out-String -Width 220
 
 if ($bad) { "Ignored $($bad.Count) uncontrolled run(s) (VSync on or FPS capped): " + (($bad | ForEach-Object { "$($_.setup)/$($_.name)" }) -join ", ") }
-$few = $table | Where-Object N -lt 3
+$few = $table | Where-Object { $_.N -lt 3 -and $_.Run -notlike "warmup*" }
 if ($few) { "Fewer than 3 runs: " + (($few | ForEach-Object { "$($_.Setup)/$($_.Run)" }) -join ", ") }
