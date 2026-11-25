@@ -30,7 +30,10 @@ $setups = [ordered]@{
 	# No E-core-voxy: Voxy 0.2.20 bundles RocksDB/LMDB natives for x64 Windows only, so it crashes on native
 	# ARM64 Java ("Can't load AMD 64-bit .dll on a ARM 64-bit platform"). Revisit if Voxy ships arm64 natives.
 	"F-core-c2me" = $core + @("c2me-fabric", "scalablelux")
+	# Same mods as D; configs\G-core-dh-lite lowers DH to 64 chunks, coarse LODs, no SSAO/clouds/transparency.
+	"G-core-dh-lite" = $core + @("distanthorizons")
 }
+$configRoot = Join-Path $PSScriptRoot "..\configs"
 
 if (Get-Process -Name "Minecraft*" -ErrorAction SilentlyContinue) { throw "Close the Minecraft launcher first." }
 if (-not (Test-Path $SnapdriftJar)) { throw "Build snapdrift first: $SnapdriftJar not found." }
@@ -136,6 +139,9 @@ foreach ($id in $setups.Keys) {
 	foreach ($m in $mods) { Copy-Item (Get-ModFile $m) $modsDir }
 	Copy-Item $SnapdriftJar $modsDir
 	if (-not (Test-Path (Join-Path $gameDir "options.txt"))) { Write-Options $gameDir }
+	# Per-setup files (e.g. mod configs) from configs\<id>\ overwrite the game dir's copies.
+	$overlay = Join-Path $configRoot $id
+	if (Test-Path $overlay) { Copy-Item -Recurse -Force "$overlay\*" $gameDir }
 
 	$key = "snapdrift-$id"
 	$profile = [pscustomobject]@{
