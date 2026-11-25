@@ -25,6 +25,7 @@ then crashed in the real ARM64 game.
 | `setup-bench-profiles.ps1` | Creates/refreshes the six launcher profiles (launcher must be closed). Backs up `launcher_profiles.json` once |
 | `boot-test-setups.ps1` | Boots each setup in snapdrift's client gametest and checks every mod loaded |
 | `copy-bench-world.ps1` | Copies the benchmark world + route start from A-vanilla to every profile (`-Reset` restores the pristine copy) |
+| `launch-direct.ps1` | Starts a profile without the launcher (launcher's ARM64 Java, offline), optionally with an autobench plan, e.g. `-Profile C-core -World "Snapdrift Bench" -Plan "rd20@20x3"`. Restores options.txt afterwards |
 | `summarize-bench.ps1` | Median avg FPS / 1% low / p99 per setup, % vs vanilla; ignores runs with VSync on or capped FPS |
 
 ## Running the benchmark
