@@ -11,10 +11,12 @@ Measure first, keep only mods that win. The bench tool is the [snapdrift](https:
 | B-sodium | Sodium 0.9.3 |
 | C-core | Sodium, Lithium, FerriteCore, ImmediatelyFast, EntityCulling, More Culling (+ Cloth Config) |
 | D-core-dh | core + Distant Horizons |
-| E-core-voxy | core + Voxy, **with Sodium 0.9.2 and without More Culling** (Voxy 0.2.20 pins Sodium 0.9.2; More Culling 1.9.2 refuses it) |
+| ~~E-core-voxy~~ | **Dropped.** Voxy 0.2.20 bundles RocksDB/LMDB natives for x64 Windows only and crashes on native ARM64 Java. (It also pins Sodium 0.9.2, which More Culling 1.9.2 refuses.) |
 | F-core-c2me | core + C2ME (alpha) + ScalableLux (alpha) |
 
-All six boot with every mod loaded (`scripts\boot-test-setups.ps1`).
+All remaining setups boot with every mod loaded (`scripts\boot-test-setups.ps1`). Caveat: the dev boot test runs on
+x64 Java (emulated), so it cannot catch crashes from x64-only native libraries. That is how Voxy passed the boot test and
+then crashed in the real ARM64 game.
 
 ## Scripts
 

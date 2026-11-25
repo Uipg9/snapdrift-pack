@@ -27,8 +27,8 @@ $setups = [ordered]@{
 	"B-sodium"  = @("sodium")
 	"C-core"    = $core
 	"D-core-dh" = $core + @("distanthorizons")
-	# Voxy 0.2.20 pins Sodium 0.9.2, and More Culling 1.9.2 refuses Sodium <= 0.9.3-beta.1: drop More Culling here.
-	"E-core-voxy" = @($core | Where-Object { $_ -ne "moreculling" }) + @("voxy")
+	# No E-core-voxy: Voxy 0.2.20 bundles RocksDB/LMDB natives for x64 Windows only, so it crashes on native
+	# ARM64 Java ("Can't load AMD 64-bit .dll on a ARM 64-bit platform"). Revisit if Voxy ships arm64 natives.
 	"F-core-c2me" = $core + @("c2me-fabric", "scalablelux")
 }
 
@@ -145,6 +145,10 @@ foreach ($id in $setups.Keys) {
 	}
 	$launcher.profiles | Add-Member -Force -NotePropertyName $key -NotePropertyValue $profile
 	$report += "{0,-12} {1}" -f $id, (($mods | ForEach-Object { "$($_.Slug)@$($_.Version)" }) -join ", ")
+}
+# Drop launcher profiles of setups that no longer exist (their game dirs are left alone).
+foreach ($p in @($launcher.profiles.PSObject.Properties | Where-Object Name -like "snapdrift-*")) {
+	if ($p.Name.Substring(10) -notin $setups.Keys) { $launcher.profiles.PSObject.Properties.Remove($p.Name); $report += "removed profile $($p.Name)" }
 }
 $launcher | ConvertTo-Json -Depth 20 | Set-Content -Encoding UTF8 $profilesPath
 $report
