@@ -10,7 +10,9 @@
   Blocks until the game exits.
 #>
 param(
-	[Parameter(Mandatory)][string]$Profile,
+	[string]$Profile,
+	# Any game dir instead of a bench profile, e.g. "$env:APPDATA\Snapdrift" for the installed pack.
+	[string]$GameDir,
 	[string]$World,
 	[string]$Plan,
 	[int]$Seconds = 60,
@@ -19,11 +21,14 @@ param(
 	[string]$Minecraft = "$env:APPDATA\.minecraft",
 	[string]$VersionId = "fabric-loader-0.20.1-26.3",
 	[string]$Java = "$env:LOCALAPPDATA\Packages\Microsoft.4297127D64EC6_8wekyb3d8bbwe\LocalCache\Local\runtime\java-runtime-epsilon\windows-arm64\java-runtime-epsilon\bin\java.exe",
-	[string]$PlayerName = "Player"
+	[string]$PlayerName = "Player",
+	# options.txt keys to set for this session only, e.g. @{ renderDistance = "20" } (restored afterwards).
+	[hashtable]$Options = @{}
 )
 $ErrorActionPreference = "Stop"
-$gameDir = Join-Path $Root $Profile
-if (-not (Test-Path $gameDir)) { throw "No profile folder $gameDir" }
+$gameDir = if ($GameDir) { $GameDir } elseif ($Profile) { Join-Path $Root $Profile } else { throw "Pass -Profile or -GameDir" }
+if (-not $Profile) { $Profile = Split-Path -Leaf $gameDir }
+if (-not (Test-Path $gameDir)) { throw "No game folder $gameDir" }
 if (-not (Test-Path $Java)) { throw "ARM64 Java not found at $Java (start any 26.x version once from the launcher)" }
 
 function Read-Version([string]$id) { Get-Content (Join-Path $Minecraft "versions\$id\$id.json") -Raw | ConvertFrom-Json }
@@ -104,6 +109,12 @@ $options = Join-Path $gameDir "options.txt"
 $optionsBackup = "$options.launch-direct"
 if (Test-Path $options) { Copy-Item -Force $options $optionsBackup }
 try {
+	if ($Options.Count -gt 0) {
+		$lines = @(if (Test-Path $options) { Get-Content $options })
+		$lines = foreach ($l in $lines) { $k = $l.Split(":", 2)[0]; if ($Options.ContainsKey($k)) { "${k}:$($Options[$k])" } else { $l } }
+		foreach ($k in $Options.Keys) { if (-not ($lines -match "^${k}:")) { $lines += "${k}:$($Options[$k])" } }
+		Set-Content -Encoding UTF8 $options $lines
+	}
 	$argFile = Join-Path $env:TEMP "snapdrift-launch-$Profile.args"
 	# Java @argfiles: quote every argument, escape backslashes and quotes.
 	(@($jvm) + $fabric.mainClass + @($clean)) | ForEach-Object { '"' + ($_ -replace '\\', '\\' -replace '"', '\"') + '"' } |

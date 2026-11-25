@@ -1,0 +1,2 @@
+renderDistance:32
+simulationDistance:6

@@ -1,0 +1,18 @@
+# Snapdrift pack mod list (Modrinth slugs). Required dependencies are added automatically.
+# Kept only what measured as a win or is FPS-neutral but helps where the flight benchmark cannot look.
+fabric-api
+# +29% avg FPS over vanilla on GL-on-D3D12 (177 -> 228 at RD12, median of 3)
+sodium
+# FPS-neutral in the benchmark; help memory (FerriteCore), ticking (Lithium), HUD/entities (ImmediatelyFast,
+# EntityCulling) and leaf/block culling (More Culling) in scenes the route does not cover.
+lithium
+ferrite-core
+immediatelyfast
+entityculling
+moreculling
+# Drops FPS when the window is unfocused or minimized: saves battery and heat on the laptop.
+dynamic-fps
+# Not in the pack, with measurements (see README):
+#   distanthorizons  5 fps default, 26 fps at 64 chunks lite, looked bad
+#   voxy             crashes on ARM64 Java (x64-only RocksDB/LMDB natives)
+#   c2me-fabric, scalablelux  no FPS change, alpha builds
